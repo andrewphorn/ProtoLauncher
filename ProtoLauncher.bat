@@ -67,7 +67,7 @@ goto :End
 
 :RunGame
 echo Running Game...
-%~dp0/ClassicalSharp.exe %PROTOUSER% %PROTOMPPASS% %PROTOIP% %PROTOPORT%
+"%~dp0/ClassicalSharp.exe" %PROTOUSER% %PROTOMPPASS% %PROTOIP% %PROTOPORT%
 goto :End
 
 :MissingFail
