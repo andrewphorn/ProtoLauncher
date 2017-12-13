@@ -5,6 +5,9 @@ echo ^|Created by AndrewPH to ^|
 echo ^|launch ClassicalSharp  ^|
 echo ^|from mc:// links online^|
 echo ^|-----------------------^|
+setlocal DisableDelayedExpansion
+set "batchPath=%~0"
+setlocal EnableDelayedExpansion
 goto :Init
 
 :Init
@@ -35,10 +38,24 @@ goto :RunGame
 
 goto :End
 
+:GetAdmin
+set "vbsGetPrivileges=%temp%\OEgetPriv_%batchName%.vbs"
+ECHO **************************************
+ECHO Invoking UAC for Privilege Escalation
+ECHO **************************************
+ECHO Set UAC = CreateObject^("Shell.Application"^) > "%vbsGetPrivileges%"
+ECHO For Each strArg in WScript.Arguments >> "%vbsGetPrivileges%"
+ECHO args = args ^& strArg ^& " "  >> "%vbsGetPrivileges%"
+ECHO Next >> "%vbsGetPrivileges%"
+if '%cmdInvoke%'=='1' goto InvokeCmd 
+ECHO UAC.ShellExecute "!batchPath!", args, "", "runas", 1 >> "%vbsGetPrivileges%"
+"%SystemRoot%\System32\WScript.exe" "%vbsGetPrivileges%" %*
+exit /B
+
 :SetRegistry
 echo Checking for admin privileges...
 net session >nul 2>&1
-if not %errorLevel% == 0 goto :PrivFail
+if not %errorLevel% == 0 goto :GetAdmin
 Reg.exe add "HKEY_CLASSES_ROOT\mc" /ve /t REG_SZ /d "URL:mc" /f
 Reg.exe add "HKEY_CLASSES_ROOT\mc" /v "URL Protocol" /t REG_SZ /d "" /f
 Reg.exe add "HKEY_CLASSES_ROOT\mc\Shell\Open\Command" /ve /t REG_SZ /d "\"%PROTOLOC%\" \"%%1\"" /f
@@ -58,7 +75,7 @@ echo Missing ClassicalSharp.exe
 goto :Fail
 
 :PrivFail
-echo You must run this as administrator to set up the registry!
+echo Requesting admin
 goto :Fail
 
 :Fail
