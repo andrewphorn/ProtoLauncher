@@ -11,10 +11,11 @@ setlocal EnableDelayedExpansion
 goto :Init
 
 :Init
-set PROTOLOC=%~0
+set PROTOLOC=%~dpnx0
 set PROTOFOLD=%~dp0
+set GAMEFILE=ClassicalSharp.exe
 
-if not exist "%PROTOFOLD%ClassicalSharp.exe" goto :MissingFail
+if not exist "%PROTOFOLD%%GAMEFILE%" goto :MissingFail
 if [%1]==[] goto :SetRegistry
 echo Game Path:
 echo %PROTOFOLD%ClassicalSharp.exe
@@ -66,11 +67,12 @@ echo Your registry has been set up correctly!
 echo Please re-run this batch file if you move ClassicalSharp.
 echo You can now click mc:// links on the internet to join
 echo -----------------------
+pause
 goto :End
 
 :RunGame
 echo Running Game...
-"%~dp0/ClassicalSharp.exe" %PROTOUSER% %PROTOMPPASS% %PROTOIP% %PROTOPORT%
+"%~dp0/%GAMEFILE%" %PROTOUSER% %PROTOMPPASS% %PROTOIP% %PROTOPORT%
 goto :End
 
 :MissingFail
