@@ -11,7 +11,7 @@ setlocal EnableDelayedExpansion
 goto :Init
 
 :Init
-set PROTOLOC=%0
+set PROTOLOC=%~0
 set PROTOFOLD=%~dp0
 
 if not exist "%PROTOFOLD%ClassicalSharp.exe" goto :MissingFail
