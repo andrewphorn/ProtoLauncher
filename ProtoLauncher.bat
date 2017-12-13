@@ -1,5 +1,5 @@
 @ECHO OFF
-echo    ProtoLauncher v 1.0
+echo    ProtoLauncher v 1.1
 echo ^|-----------------------^|
 echo ^|Created by AndrewPH to ^|
 echo ^|launch ClassicalSharp  ^|
@@ -16,6 +16,9 @@ set PROTOFOLD=%~dp0
 
 if not exist "%PROTOFOLD%ClassicalSharp.exe" goto :MissingFail
 if [%1]==[] goto :SetRegistry
+echo Game Path:
+echo %PROTOFOLD%ClassicalSharp.exe
+echo -----------------------
 goto :SplitURL
 
 :SplitURL
@@ -62,7 +65,7 @@ Reg.exe add "HKEY_CLASSES_ROOT\mc\Shell\Open\Command" /ve /t REG_SZ /d "\"%PROTO
 echo Your registry has been set up correctly!
 echo Please re-run this batch file if you move ClassicalSharp.
 echo You can now click mc:// links on the internet to join
-echo ----------------------------------------
+echo -----------------------
 goto :End
 
 :RunGame
@@ -80,8 +83,8 @@ goto :Fail
 
 :Fail
 echo Error in running. Please check above output for more information.
+pause
 goto :End
 
 :End
 echo Closing...
-pause
