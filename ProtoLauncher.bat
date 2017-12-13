@@ -9,8 +9,11 @@ goto :Init
 
 :Init
 set PROTOLOC=%0
+set PROTOFOLD=%~dp0
+
+if not exist "%PROTOFOLD%ClassicalSharp.exe" goto :MissingFail
 if [%1]==[] goto :SetRegistry
-if exist "ClassiCalSharp.exe" goto :SplitURL else goto :MissingFail
+goto :SplitURL
 
 :SplitURL
 FOR /F "tokens=2,3,4 delims=/" %%a in (%1) do (
