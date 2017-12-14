@@ -15,7 +15,7 @@ set PROTOLOC=%~dpnx0
 set PROTOFOLD=%~dp0
 set GAMEFILE=ClassicalSharp.exe
 
-if not exist "%PROTOFOLD%%GAMEFILE%" goto :MissingFail
+if not exist "%PROTOFOLD%%GAMEFILE%" goto :DownloadGame
 if [%1]==[] goto :SetRegistry
 echo Game Path:
 echo %PROTOFOLD%ClassicalSharp.exe
@@ -43,7 +43,7 @@ goto :RunGame
 goto :End
 
 :GetAdmin
-set "vbsGetPrivileges=%temp%\OEgetPriv_%batchName%.vbs"
+set "vbsGetPrivileges=%temp%\PROTOLAUNCH_TMP_adminprivs.vbs"
 ECHO **************************************
 ECHO Invoking UAC for Privilege Escalation
 ECHO **************************************
@@ -74,6 +74,52 @@ goto :End
 echo Running Game...
 "%~dp0/%GAMEFILE%" %PROTOUSER% %PROTOMPPASS% %PROTOIP% %PROTOPORT%
 goto :End
+
+:DownloadGame
+set "vbsDownloadGame=%temp%\PROTOLAUNCH_TMP_download.vbs"
+set "gameZipFile=%temp%\protolaunch_game_latest.zip"
+set "gameZipDownload=http://static.classicube.net/ClassicalSharp/latest.Release.zip"
+
+> %vbsDownloadGame% ECHO strHDLocation = "%gameZipFile%"
+>> %vbsDownloadGame% ECHO Set xmlHttp = CreateObject("Microsoft.XMLHTTP")
+>> %vbsDownloadGame% ECHO xmlHttp.Open "GET", "%gameZipDownload%" , False
+>> %vbsDownloadGame% ECHO xmlHttp.Send()
+>> %vbsDownloadGame% ECHO Set objADOStream = CreateObject("ADODB.Stream")
+>> %vbsDownloadGame% ECHO objADOStream.Open
+>> %vbsDownloadGame% ECHO objADOStream.Type = 1 'adTypeBinary
+>> %vbsDownloadGame% ECHO objADOStream.Write xmlHttp.ResponseBody
+>> %vbsDownloadGame% ECHO objADOStream.Position = 0    'Set the stream position to the start
+>> %vbsDownloadGame% ECHO Set objFSO = Createobject("Scripting.FileSystemObject")
+>> %vbsDownloadGame% ECHO If objFSO.Fileexists(strHDLocation) Then objFSO.DeleteFile strHDLocation
+>> %vbsDownloadGame% ECHO Set objFSO = Nothing
+>> %vbsDownloadGame% ECHO objADOStream.SaveToFile strHDLocation
+>> %vbsDownloadGame% ECHO objADOStream.Close
+>> %vbsDownloadGame% ECHO Set objADOStream = Nothing
+
+"%SystemRoot%\System32\WScript.exe" "%vbsDownloadGame%"
+pause
+goto :UnzipGame
+
+:UnzipGame
+set "vbsUnzipGame=%temp%\PROTOLAUNCH_TMP_unzip.vbs"
+> %vbsUnzipGame% ECHO Dim ArgObj, var1, var2, strFileZIP
+>> %vbsUnzipGame% ECHO Set ArgObj = WScript.Arguments
+>> %vbsUnzipGame% ECHO strFileZIP = "%temp%\protolaunch_game_latest.zip"
+>> %vbsUnzipGame% ECHO Set WshShell = CreateObject("Wscript.Shell")
+>> %vbsUnzipGame% ECHO Dim outFolder, objShell, objSource, objTarget
+>> %vbsUnzipGame% ECHO outFolder = "%PROTOFOLD%"
+>> %vbsUnzipGame% ECHO Set objShell = CreateObject( "Shell.Application" )
+>> %vbsUnzipGame% ECHO Set objSource = objShell.NameSpace(strFileZIP).Items()
+>> %vbsUnzipGame% ECHO objShell.NameSpace(outFolder).CopyHere objSource, 256
+"%SystemRoot%\System32\WScript.exe" "%vbsUnzipGame%"
+goto :RunLauncher
+
+:RunLauncher
+echo Opening the launcher to download files.
+echo Close the launcher when it's done to continue setup.
+"%~dp0/Launcher.exe"
+echo Setting up the registry now...
+goto :SetRegistry
 
 :MissingFail
 echo Missing ClassicalSharp.exe
