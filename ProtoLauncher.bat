@@ -79,7 +79,7 @@ goto :End
 :DownloadGame
 set "vbsDownloadGame=%temp%\PROTOLAUNCH_TMP_download.vbs"
 set "gameZipFile=%temp%\protolaunch_game_latest.zip"
-set "gameZipDownload=http://static.classicube.net/ClassicalSharp/latest.Release.zip"
+set "gameZipDownload=http://static.classicube.net/ClassicalSharp/latest.DirectX.zip"
 
 > %vbsDownloadGame% ECHO strHDLocation = "%gameZipFile%"
 >> %vbsDownloadGame% ECHO Set xmlHttp = CreateObject("Microsoft.XMLHTTP")
