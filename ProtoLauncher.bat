@@ -54,6 +54,7 @@ ECHO Next >> "%vbsGetPrivileges%"
 if '%cmdInvoke%'=='1' goto InvokeCmd 
 ECHO UAC.ShellExecute "!batchPath!", args, "", "runas", 1 >> "%vbsGetPrivileges%"
 "%SystemRoot%\System32\WScript.exe" "%vbsGetPrivileges%" %*
+del "%vbsGetPrivileges%"
 exit /B
 
 :SetRegistry
@@ -97,7 +98,6 @@ set "gameZipDownload=http://static.classicube.net/ClassicalSharp/latest.Release.
 >> %vbsDownloadGame% ECHO Set objADOStream = Nothing
 
 "%SystemRoot%\System32\WScript.exe" "%vbsDownloadGame%"
-pause
 goto :UnzipGame
 
 :UnzipGame
@@ -111,6 +111,7 @@ set "vbsUnzipGame=%temp%\PROTOLAUNCH_TMP_unzip.vbs"
 >> %vbsUnzipGame% ECHO Set objShell = CreateObject( "Shell.Application" )
 >> %vbsUnzipGame% ECHO Set objSource = objShell.NameSpace(strFileZIP).Items()
 >> %vbsUnzipGame% ECHO objShell.NameSpace(outFolder).CopyHere objSource, 256
+>> %vbsUnzipGame% ECHO WScript.Echo("We will now be launching ClassicalSharp's Launcher. Please close it once it's done downloading files.")
 "%SystemRoot%\System32\WScript.exe" "%vbsUnzipGame%"
 goto :RunLauncher
 
@@ -118,6 +119,10 @@ goto :RunLauncher
 echo Opening the launcher to download files.
 echo Close the launcher when it's done to continue setup.
 "%~dp0/Launcher.exe"
+echo Cleaning up after myself. Deleting temporary scripts.
+del "%vbsUnzipGame%"
+del "%vbsDownloadGame%"
+del "%gameZipFile%"
 echo Setting up the registry now...
 goto :SetRegistry
 
