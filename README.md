@@ -7,6 +7,12 @@ Using ProtoLauncher is easy. For first-time setup, place ProtoLauncher.bat in th
 
 After that one setup, you can now click any mc:// link on the internet to join the associated server!
 
+## Compatibility
+
+ProtoLauncher has been tested to work on Windows XP, Windows Vista, and Windows 10. It should work on everything in-between (and anything that comes with reg.exe)
+
+It does not work with Linux or Mac OS. It is a batch file that edits the Windows registry. I hope you understand.
+
 ## License
 
 ProtoLauncher is written under the MIT license. Full license terms are included in the repository.
