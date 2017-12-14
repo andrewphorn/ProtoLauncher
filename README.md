@@ -1,9 +1,11 @@
 # ProtoLauncher
-A batch file to register and handle mc:// url protocols for ClassiCube
+A batch file to register and handle mc:// url protocols for ClassiCube.
+
+Also downloads ClassicalSharp if you don't have it.
 
 ## Usage
 
-Using ProtoLauncher is easy. For first-time setup, place ProtoLauncher.bat in the same directory as ClassicalSharp.exe. Then, run it. This will set up the registry and get you going.
+Using ProtoLauncher is easy. For first-time setup, place ProtoLauncher.bat in the same directory as ClassicalSharp.exe, or in the folder you want to install ClassicalSharp to. Then, run it. This will set up the registry and get you going.
 
 After that one setup, you can now click any mc:// link on the internet to join the associated server!
 
