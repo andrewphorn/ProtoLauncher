@@ -1,9 +1,7 @@
 @ECHO OFF
-echo    ProtoLauncher v 1.1
+echo    ProtoLauncher v 1.2
 echo ^|-----------------------^|
-echo ^|Created by AndrewPH to ^|
-echo ^|launch ClassicalSharp  ^|
-echo ^|from mc:// links online^|
+echo ^|Created by AndrewPH    ^|
 echo ^|-----------------------^|
 setlocal DisableDelayedExpansion
 set "batchPath=%~0"
@@ -13,20 +11,26 @@ goto :Init
 :Init
 set PROTOLOC=%~dpnx0
 set PROTOFOLD=%~dp0
-set GAMEFILE=ClassicalSharp.exe
+reg Query "HKLM\Hardware\Description\System\CentralProcessor\0" | find /i "x86" > NUL && set GAMEFILE=ClassiCube.exe || set GAMEFILE=ClassiCube.64.exe
 
-if not exist "%PROTOFOLD%%GAMEFILE%" goto :DownloadGame
+if not exist "%PROTOFOLD%%GAMEFILE%" goto :SetupGame
 if [%1]==[] goto :SetRegistry
 echo Game Path:
-echo %PROTOFOLD%ClassicalSharp.exe
+echo %PROTOFOLD%%GAMEFILE%
 echo -----------------------
 goto :SplitURL
+
+:SetupGame
+call :DownloadGame
+call :RunLauncher
+goto :SetRegistry
+
 
 :SplitURL
 FOR /F "tokens=2,3,4 delims=/" %%a in (%1) do (
 	set PROTOIPPORT=%%a
 	set PROTOUSER=%%b
-	set PROTOMPPASS=%%c 	
+	set PROTOMPPASS=%%c
 )
 
 FOR /F "tokens=1,2 delims=:" %%a in ("%PROTOIPPORT%") do (
@@ -65,25 +69,30 @@ Reg.exe add "HKEY_CLASSES_ROOT\mc" /ve /t REG_SZ /d "URL:mc" /f
 Reg.exe add "HKEY_CLASSES_ROOT\mc" /v "URL Protocol" /t REG_SZ /d "" /f
 Reg.exe add "HKEY_CLASSES_ROOT\mc\Shell\Open\Command" /ve /t REG_SZ /d "\"%PROTOLOC%\" \"%%1\"" /f
 echo Your registry has been set up correctly!
-echo Please re-run this batch file if you move ClassicalSharp.
+echo Please re-run this batch file if you move the game files.
 echo You can now click mc:// links on the internet to join
 echo -----------------------
 pause
 goto :End
 
 :RunGame
+echo Updating Game from latest dev
+call :UpdateGame
 echo Running Game...
-"%~dp0/%GAMEFILE%" %PROTOUSER% %PROTOMPPASS% %PROTOIP% %PROTOPORT%
+"%PROTOFOLD%%GAMEFILE%" %PROTOUSER% %PROTOMPPASS% %PROTOIP% %PROTOPORT%
 goto :End
+
+:UpdateGame
+call :DownloadGame
+goto :eof
 
 :DownloadGame
 set "vbsDownloadGame=%temp%\PROTOLAUNCH_TMP_download.vbs"
-set "gameZipFile=%temp%\protolaunch_game_latest.zip"
-set "gameZipDownload=http://static.classicube.net/ClassicalSharp/latest.DirectX.zip"
+set "gameDownload=http://static.classicube.net/ClassicalSharp/c_client/latest/%GAMEFILE%"
 
-> %vbsDownloadGame% ECHO strHDLocation = "%gameZipFile%"
+> %vbsDownloadGame% ECHO strHDLocation = "%PROTOFOLD%%GAMEFILE%"
 >> %vbsDownloadGame% ECHO Set xmlHttp = CreateObject("Microsoft.XMLHTTP")
->> %vbsDownloadGame% ECHO xmlHttp.Open "GET", "%gameZipDownload%" , False
+>> %vbsDownloadGame% ECHO xmlHttp.Open "GET", "%gameDownload%" , False
 >> %vbsDownloadGame% ECHO xmlHttp.Send()
 >> %vbsDownloadGame% ECHO Set objADOStream = CreateObject("ADODB.Stream")
 >> %vbsDownloadGame% ECHO objADOStream.Open
@@ -98,36 +107,19 @@ set "gameZipDownload=http://static.classicube.net/ClassicalSharp/latest.DirectX.
 >> %vbsDownloadGame% ECHO Set objADOStream = Nothing
 
 "%SystemRoot%\System32\WScript.exe" "%vbsDownloadGame%"
-goto :UnzipGame
 
-:UnzipGame
-set "vbsUnzipGame=%temp%\PROTOLAUNCH_TMP_unzip.vbs"
-> %vbsUnzipGame% ECHO Dim ArgObj, var1, var2, strFileZIP
->> %vbsUnzipGame% ECHO Set ArgObj = WScript.Arguments
->> %vbsUnzipGame% ECHO strFileZIP = "%temp%\protolaunch_game_latest.zip"
->> %vbsUnzipGame% ECHO Set WshShell = CreateObject("Wscript.Shell")
->> %vbsUnzipGame% ECHO Dim outFolder, objShell, objSource, objTarget
->> %vbsUnzipGame% ECHO outFolder = "%PROTOFOLD%"
->> %vbsUnzipGame% ECHO Set objShell = CreateObject( "Shell.Application" )
->> %vbsUnzipGame% ECHO Set objSource = objShell.NameSpace(strFileZIP).Items()
->> %vbsUnzipGame% ECHO objShell.NameSpace(outFolder).CopyHere objSource, 256
->> %vbsUnzipGame% ECHO WScript.Echo("We will now be launching ClassicalSharp's Launcher. Please close it once it's done downloading files.")
-"%SystemRoot%\System32\WScript.exe" "%vbsUnzipGame%"
-goto :RunLauncher
+if not exist "%PROTOFOLD%%GAMEFILE%" goto :DownloadGame
+goto :eof
 
 :RunLauncher
 echo Opening the launcher to download files.
 echo Close the launcher when it's done to continue setup.
-"%~dp0/Launcher.exe"
-echo Cleaning up after myself. Deleting temporary scripts.
-del "%vbsUnzipGame%"
-del "%vbsDownloadGame%"
-del "%gameZipFile%"
+"%PROTOFOLD%%GAMEFILE%"
 echo Setting up the registry now...
-goto :SetRegistry
+goto :eof
 
 :MissingFail
-echo Missing ClassicalSharp.exe
+echo Missing %GAMEFILE%
 goto :Fail
 
 :PrivFail
